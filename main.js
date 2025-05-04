@@ -5,10 +5,9 @@ import readline from 'readline/promises';
 import axios from 'axios';
 import { TurnstileTask } from 'node-capmonster';
 import { Solver } from "@2captcha/captcha-solver";
-import bestcaptchasolver from 'bestcaptchasolver';
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-console.log("1. CapResolve (recommended as cheapest) - 2. 2Captcha - 3. Capmonster - 4. Bestcaptchasolver");
+console.log("1. CapResolve (recommended as cheapest) - 2. 2Captcha - 3. Capmonster");
 const type = await rl.question("Enter captcha solving service type: ");
 const apiKey = await rl.question("Enter your API key: ");
 
@@ -100,29 +99,15 @@ async function solverCaptcha() {
                 websiteKey: sitekey,
                 websiteURL: pageurl
             });
-            const taskId = await capMonster.createWithTask(task);
-            const result = await capMonster.joinTaskResult(taskId);
+            const token = await task.join();
             console.log("Captcha solved successfully");
-            return result.token;
+            return token;
         }
 
-        if (type === "4") {
-            bestcaptchasolver.set_access_token(apiKey);
-            try {
-                const id = await bestcaptchasolver.submit_turnstile({
-                    page_url: pageurl,
-                    site_key: sitekey,
-                });
-                const token = await bestcaptchasolver.retrieve_captcha(id);
-                console.log("Captcha solved successfully");
-                return token.solution;
-            } catch (error) {
-                console.error("Bestcaptchasolver Error:", error.message);
-                return null;
-            }
-        }
+        console.error("Invalid captcha service type selected");
+        return null;
     } catch (error) {
-        console.error("Error solving captcha:", error.message);
+        console.error("Error solving captcha:", error);
         return null;
     }
 }
