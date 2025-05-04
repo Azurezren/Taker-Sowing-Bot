@@ -1,0 +1,2 @@
+http://user:pass@ip:port
+Leave blank the lines that do not use a proxy.
